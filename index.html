@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="./gallery.css" rel="stylesheet">
+    <title>Camera Uploader</title>
+  </head>
+  <body onload="fillGallery()">
+    <div id="root">
+      <input class="inputfile" id="myFileInput" type="file" accept="image/*;capture=camera" enctype="multipart/form-data" />
+      <label for="myFileInput"><strong>Choose a file</strong></label>
+    </div>
+    <div id="gallery">
+    </div>
+    <script type="text/javascript">
+      var myInput = document.getElementById('myFileInput');
+
+      function sendPic(){
+        var file = myInput.files[0];
+        var oReq = new XMLHttpRequest();
+        var formData = new FormData();
+        oReq.open("POST", "/gallery");
+        oReq.setRequestHeader('X-Requested-With','XMLHttpRequest');
+        formData.append('files', file);
+        oReq.send(formData);
+        console.log(file);
+        fillGallery();
+
+      }
+
+      function fillGallery(){
+        var oReq = new XMLHttpRequest();
+        oReq.open("GET", "/gallery");
+        oReq.onload = function () {
+            if (oReq.readyState === oReq.DONE) {
+                if (oReq.status === 200) {
+                    console.log(JSON.parse(oReq.response).gallery);
+                    $.each(JSON.parse(oReq.response).gallery, function( i, val ) {
+                      $('#gallery').prepend('<img id="'+val+'" src="upload/'+val+'" />')
+                    })
+                }
+            }
+        };
+        oReq.send();
+        
+      }
+
+
+
+      myInput.addEventListener('change', sendPic, false);
+
+    </script>
+  </body>
+</html>
